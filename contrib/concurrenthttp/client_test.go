@@ -7,9 +7,6 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	// 创建客户端配置
-	client := NewClient(3, 100*time.Millisecond)
-
 	// 待请求的URL列表
 	urls := []Request{
 		{
@@ -23,6 +20,9 @@ func TestClient(t *testing.T) {
 			URL: "https://www.x.com",
 		},
 	}
+
+	// 创建客户端配置
+	client := NewClient(len(urls), 100*time.Millisecond)
 
 	// 执行并发请求
 	results, err := client.Fetch(urls)
