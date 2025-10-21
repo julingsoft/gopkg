@@ -8,28 +8,14 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-func (p *Producer) Delay(ctx context.Context, tag string, keys []string, messages []*rmqclient.Message) error {
-	// start producer
-	err := p.client.Start()
-	if err != nil {
-		return err
-	}
-
-	// graceful stop producer
-	defer func(producer rmqclient.Producer) {
-		err := producer.GracefulStop()
-		if err != nil {
-			g.Log().Error(ctx, err)
-		}
-	}(p.client)
-
+func (p *Producer) Delay(ctx context.Context, tag string, keys []string, messages []*rmqclient.Message, deliveryTimestamp time.Time) error {
 	for _, message := range messages {
 		message.SetTag(tag)
 		message.SetKeys(keys...)
-		message.SetDelayTimestamp(time.Now().Add(p.config.DelayTime))
+		message.SetDelayTimestamp(deliveryTimestamp)
 
 		// send message in async
-		resp, err := p.client.Send(ctx, message)
+		resp, err := p.Client.Send(ctx, message)
 		if err != nil {
 			g.Log().Error(ctx, err)
 		}
