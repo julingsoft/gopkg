@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"log"
+
 	"github.com/gogf/gf/v2/os/gfile"
 	"golang.org/x/tools/imports"
-	"log"
 )
 
 // GoFmt formats the source file and adds or removes import statements as necessary.

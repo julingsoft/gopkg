@@ -2,8 +2,9 @@ package plugins
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Manager struct {
