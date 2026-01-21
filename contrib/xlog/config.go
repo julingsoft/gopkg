@@ -6,5 +6,6 @@ type Config struct {
 	AccessKeySecret string
 	ProjectName     string
 	LogStoreName    string
-	Debug           bool
+	Topic           string
+	Source          string
 }

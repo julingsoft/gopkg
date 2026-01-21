@@ -27,7 +27,7 @@ func MustGetQueryStr(queryData ...map[string]interface{}) (queryStr string) {
 	}
 
 	if len(dataMap) > 0 {
-		var keys = make([]string, len(dataMap))
+		var keys = make([]string, 0, len(dataMap))
 		for key := range dataMap {
 			if key != "sign" {
 				keys = append(keys, key)

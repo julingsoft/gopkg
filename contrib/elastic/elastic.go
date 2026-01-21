@@ -5,48 +5,34 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sync"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-type Elasticsearch struct {
+type Elastic struct {
 	client *elasticsearch.Client
 }
 
-var (
-	instance *Elasticsearch
-	once     sync.Once
-)
-
-// GetInstance 返回 Elasticsearch 的单例实例
-func GetInstance(config elasticsearch.Config) (*Elasticsearch, error) {
-	var err error
-	once.Do(func() {
-		client, e := elasticsearch.NewClient(config)
-		if e != nil {
-			err = e
-			return
-		}
-		instance = &Elasticsearch{
-			client: client,
-		}
-	})
+// GetInstance 返回 Elastic 的单例实例
+func GetInstance(cfg elasticsearch.Config) (*Elastic, error) {
+	client, err := elasticsearch.NewClient(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("error creating the client: %w", err)
+		return nil, err
 	}
-	return instance, nil
+	return &Elastic{
+		client: client,
+	}, nil
 }
 
-// Client 返回 Elasticsearch 客户端
-func (e *Elasticsearch) Client() *elasticsearch.Client {
+// Client 返回 Elastic 客户端
+func (e *Elastic) Client() *elasticsearch.Client {
 	return e.client
 }
 
 // CreateIndex 创建索引
-func (e *Elasticsearch) CreateIndex(ctx context.Context, indexName string) error {
+func (e *Elastic) CreateIndex(ctx context.Context, indexName string) error {
 	res, err := e.client.Indices.Create(
 		indexName,
 		e.client.Indices.Create.WithContext(ctx),
@@ -66,7 +52,7 @@ func (e *Elasticsearch) CreateIndex(ctx context.Context, indexName string) error
 }
 
 // CreateDocument 创建（索引）文档
-func (e *Elasticsearch) CreateDocument(ctx context.Context, indexName string, document []byte, id string) error {
+func (e *Elastic) CreateDocument(ctx context.Context, indexName string, document []byte, id string) error {
 	req := esapi.IndexRequest{
 		Index:      indexName,
 		DocumentID: id,
@@ -90,7 +76,7 @@ func (e *Elasticsearch) CreateDocument(ctx context.Context, indexName string, do
 }
 
 // ReadDocument 读取文档
-func (e *Elasticsearch) ReadDocument(ctx context.Context, indexName, docID string) (*any, error) {
+func (e *Elastic) ReadDocument(ctx context.Context, indexName, docID string) (*any, error) {
 	req := esapi.GetRequest{
 		Index:      indexName,
 		DocumentID: docID,
@@ -117,7 +103,7 @@ func (e *Elasticsearch) ReadDocument(ctx context.Context, indexName, docID strin
 }
 
 // UpdateDocument 更新文档
-func (e *Elasticsearch) UpdateDocument(ctx context.Context, indexName, docID string, updateData map[string]interface{}) error {
+func (e *Elastic) UpdateDocument(ctx context.Context, indexName, docID string, updateData map[string]interface{}) error {
 	body, err := json.Marshal(map[string]interface{}{"doc": updateData})
 	if err != nil {
 		return fmt.Errorf("error marshaling update data: %w", err)
@@ -146,7 +132,7 @@ func (e *Elasticsearch) UpdateDocument(ctx context.Context, indexName, docID str
 }
 
 // DeleteDocument 删除文档
-func (e *Elasticsearch) DeleteDocument(ctx context.Context, indexName, docID string) error {
+func (e *Elastic) DeleteDocument(ctx context.Context, indexName, docID string) error {
 	req := esapi.DeleteRequest{
 		Index:      indexName,
 		DocumentID: docID,
@@ -169,7 +155,7 @@ func (e *Elasticsearch) DeleteDocument(ctx context.Context, indexName, docID str
 }
 
 // SearchDocuments 搜索文档
-func (e *Elasticsearch) SearchDocuments(ctx context.Context, indexName, query string) ([]any, error) {
+func (e *Elastic) SearchDocuments(ctx context.Context, indexName, query string) ([]any, error) {
 	var buf bytes.Buffer
 	searchQuery := map[string]interface{}{
 		"query": map[string]interface{}{

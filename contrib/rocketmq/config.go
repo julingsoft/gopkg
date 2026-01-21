@@ -1,10 +1,11 @@
 package rocketmq
 
 type Config struct {
-	Endpoint      string `json:"endpoint" validate:"required"`
+	Endpoint      string `json:"endpoint"`
 	NameSpace     string `json:"nameSpace"`
 	ConsumerGroup string `json:"consumerGroup"`
-	AccessKey     string `json:"accessKey" validate:"required"`
-	AccessSecret  string `json:"accessSecret" validate:"required"`
+	Topic         string `json:"topic"`
+	AccessKey     string `json:"accessKey"`
+	SecretKey     string `json:"secretKey"`
 	SecurityToken string `json:"securityToken"`
 }

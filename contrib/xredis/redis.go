@@ -19,43 +19,47 @@ func New(typeName ...string) *gredis.Redis {
 	return g.Redis(redisType)
 }
 
-func GetLock(ctx context.Context, key string, exp int64) (bool, error) {
+// GetLockWithValue 使用唯一标识符，防止误删其他实例的锁
+func GetLockWithValue(ctx context.Context, key string, value string, exp int64) (bool, error) {
 	redis := New()
 	if redis == nil {
 		return false, fmt.Errorf("redis not found")
 	}
 
-	result, err := redis.Set(ctx, key, 1, gredis.SetOption{
+	result, err := redis.Set(ctx, key, value, gredis.SetOption{
 		TTLOption: gredis.TTLOption{
-			EX: gconv.PtrInt64(exp), // 设置锁的有效期
+			EX: gconv.PtrInt64(exp),
 		},
-		NX:  true,  // 只有key不存在时才会成功设置
-		Get: false, // 不需要获取原始值
+		NX:  true,
+		Get: false,
 	})
 
 	if err != nil {
 		return false, fmt.Errorf("failed to get lock: %v", err)
 	}
 
-	// 判断是否获取到锁
-	if result.Val() == "OK" {
-		return true, nil // 成功获取锁
-	}
-
-	return false, nil // 未获取到锁
+	return result.Val() == "OK", nil
 }
 
-func DelLock(ctx context.Context, key string) (bool, error) {
+// DelLockWithValue 只删除自己持有的锁（使用 Lua 脚本保证原子性）
+func DelLockWithValue(ctx context.Context, key string, value string) (bool, error) {
 	redis := New()
 	if redis == nil {
 		return false, fmt.Errorf("redis not found")
 	}
 
-	_, err := redis.Del(ctx, key)
+	script := `
+		if redis.call("get", KEYS[1]) == ARGV[1] then
+			return redis.call("del", KEYS[1])
+		else
+			return 0
+		end
+	`
 
+	result, err := redis.Eval(ctx, script, 1, []string{key}, []any{value})
 	if err != nil {
 		return false, fmt.Errorf("failed to del lock: %v", err)
 	}
 
-	return true, nil // 未获取到锁
+	return result.Int() == 1, nil
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/gclient"
 	"github.com/gogf/gf/v2/text/gstr"
@@ -57,7 +58,6 @@ func (c *HttpClient) Get(ctx context.Context, url string) ([]byte, error) {
 		Response: string(respBytes),
 		Status:   r.Response.StatusCode,
 		Duration: duration,
-		LogTime:  time.Now(),
 	})
 
 	return respBytes, nil
@@ -69,7 +69,7 @@ func (c *HttpClient) Post(ctx context.Context, url string, data string) ([]byte,
 	url = gstr.TrimRight(c.BaseUrl, "/") + "/" + gstr.TrimLeft(url, "/")
 	r, err := c.Client.Post(ctx, url, data)
 	if err != nil {
-		return nil, err
+		return nil, gerror.Wrapf(err, "req: %s", data)
 	}
 	defer r.Close()
 
@@ -82,7 +82,6 @@ func (c *HttpClient) Post(ctx context.Context, url string, data string) ([]byte,
 		Response: string(respBytes),
 		Status:   r.Response.StatusCode,
 		Duration: duration,
-		LogTime:  time.Now(),
 	})
 
 	return respBytes, nil

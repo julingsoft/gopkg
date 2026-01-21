@@ -86,7 +86,7 @@ func GetPriKey(ctx context.Context, table string) string {
 func GetKeyColumns(ctx context.Context, table string) []map[string]string {
 	var allColumns = GetTableColumns(ctx, table)
 
-	var keyColumns = make([]map[string]string, 0)
+	var keyColumns = make([]map[string]string, 0, len(allColumns))
 	for _, fieldInfo := range allColumns {
 		if !g.IsEmpty(fieldInfo["Key"]) {
 			keyColumns = append(keyColumns, fieldInfo)
