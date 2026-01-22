@@ -1,4 +1,4 @@
-module github.com/julingsoft/gogf
+module github.com/julingsoft/gopkg
 
 go 1.25.0
 
