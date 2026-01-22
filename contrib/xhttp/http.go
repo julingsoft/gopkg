@@ -9,7 +9,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/gclient"
 	"github.com/gogf/gf/v2/text/gstr"
-	"github.com/julingsoft/gogf/contrib/xlog"
+	"github.com/julingsoft/gopkg/contrib/xlog"
 )
 
 type HttpClient struct {
