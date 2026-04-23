@@ -9,8 +9,8 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.5.1
 	github.com/elastic/go-elasticsearch/v8 v8.19.0
 	github.com/gin-gonic/gin v1.11.0
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.9.8
-	github.com/gogf/gf/v2 v2.9.8
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.10.0
+	github.com/gogf/gf/v2 v2.10.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/rabbitmq/rabbitmq-amqp-go-client v0.4.1

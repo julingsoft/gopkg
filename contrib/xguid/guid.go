@@ -64,9 +64,10 @@ func GetDefaultMachineID() (uint16, error) {
 }
 
 func NextID() int64 {
-	for {
+	for i := 0; i < 10; i++ {
 		if id, err := New(); err == nil {
 			return id
 		}
 	}
+	return 0
 }

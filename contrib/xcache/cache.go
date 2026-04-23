@@ -6,9 +6,5 @@ import (
 )
 
 func New() (cache *gcache.Cache) {
-	return GetInstance()
-}
-
-func GetInstance() (cache *gcache.Cache) {
 	return gcache.NewWithAdapter(gcache.NewAdapterRedis(g.Redis("cache")))
 }

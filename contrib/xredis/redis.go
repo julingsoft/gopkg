@@ -8,15 +8,27 @@ import (
 	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	goredis "github.com/redis/go-redis/v9"
 )
 
-func New(typeName ...string) *gredis.Redis {
-	redisType := "default"
-	if len(typeName) > 0 {
-		redisType = typeName[0]
+func New(redisType ...string) *gredis.Redis {
+	name := "default"
+	if len(redisType) > 0 {
+		name = redisType[0]
 	}
+	return g.Redis(name)
+}
 
-	return g.Redis(redisType)
+// Client 返回redis的通用客户端
+func Client() goredis.UniversalClient {
+	redis := New()
+	if redis != nil {
+		universalClient, ok := redis.Client().(goredis.UniversalClient)
+		if ok {
+			return universalClient
+		}
+	}
+	return nil
 }
 
 // GetLockWithValue 使用唯一标识符，防止误删其他实例的锁

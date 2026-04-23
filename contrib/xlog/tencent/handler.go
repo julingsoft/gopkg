@@ -1,41 +1,42 @@
-package xlog
+package tencent
 
 import (
 	"context"
 	"encoding/json"
 	"os"
 
-	sls "github.com/aliyun/aliyun-log-go-sdk"
-	"github.com/aliyun/aliyun-log-go-sdk/producer"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/util/gconv"
+	tencentcloud_cls_sdk_go "github.com/tencentcloud/tencentcloud-cls-sdk-go"
 )
 
-type Producer struct {
-	client *producer.Producer
+type Handler struct {
+	client *tencentcloud_cls_sdk_go.AsyncProducerClient
 	config Config
 }
 
-func NewProducer(config Config) *Producer {
-	cfg := producer.GetDefaultProducerConfig()
-	cfg.Endpoint = config.Endpoint
-	cfg.CredentialsProvider = sls.NewStaticCredentialsProvider(config.AccessKeyID, config.AccessKeySecret, "")
-	client, err := producer.NewProducer(cfg)
+func NewHandler(config Config) *Handler {
+	producerConfig := tencentcloud_cls_sdk_go.GetDefaultAsyncProducerClientConfig()
+	producerConfig.Endpoint = config.EndPoint
+	producerConfig.AccessKeyID = config.SecretId
+	producerConfig.AccessKeySecret = config.SecretKey
+
+	client, err := tencentcloud_cls_sdk_go.NewAsyncProducerClient(producerConfig)
 	if err != nil {
 		panic(err)
 	}
 
 	client.Start()
 
-	return &Producer{
+	return &Handler{
 		client: client,
 		config: config,
 	}
 }
 
-// Handler is the GoFrame v2 logging handler for Aliyun SLS.
-func (p *Producer) Handler(ctx context.Context, input *glog.HandlerInput) {
+// Handler is the GoFrame v2 logging handler for Tencent Cloud CLS.
+func (h *Handler) Handler(ctx context.Context, input *glog.HandlerInput) {
 	// 容器信息
 	containerName := "N/A"
 	if hostName, err := os.Hostname(); err == nil {
@@ -79,17 +80,17 @@ func (p *Producer) Handler(ctx context.Context, input *glog.HandlerInput) {
 	}
 
 	// 发送日志
-	log := producer.GenerateLog(uint32(input.Time.Unix()), logContents)
-	if err := p.client.SendLog(p.config.ProjectName, p.config.LogStoreName, p.config.Topic, p.config.Source, log); err != nil {
-		input.Logger.Print(ctx, "Aliyun SLS SendLog error:", err)
+	log := tencentcloud_cls_sdk_go.NewCLSLog(input.Time.Unix(), logContents)
+	if err := h.client.SendLog(h.config.TopicID, log, nil); err != nil {
+		input.Logger.Print(ctx, "Tencent CLS SendLog error:", err)
 	}
 
 	// 继续执行下一个 Handler (如果有)
 	input.Next(ctx)
 }
 
-func (p *Producer) Close() {
-	if p.client != nil {
-		p.client.SafeClose()
+func (h *Handler) Close() {
+	if h.client != nil {
+		h.client.Close(60000) // 等待最多 60s
 	}
 }
